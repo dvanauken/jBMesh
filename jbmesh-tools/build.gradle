@@ -37,9 +37,13 @@ dependencies {
     runtimeOnly 'org.jmonkeyengine:jme3-lwjgl3:'     + jmonkeyengineVersion
 
     // Lemur GUI library
-    implementation group: 'com.simsilica', name: 'lemur', version: '1.14.0'
+    // https://mvnrepository.com/artifact/com.simsilica/lemur
+    implementation group: 'com.simsilica', name: 'lemur', version: '1.16.0'
+
+    // https://mvnrepository.com/artifact/com.simsilica/lemur-proto
     implementation group: 'com.simsilica', name: 'lemur-proto', version: '1.13.0'
 
+    // https://mvnrepository.com/artifact/org.codehaus.groovy/groovy-all
     implementation group: 'org.codehaus.groovy', name: 'groovy-all', version: '2.4.15'
 
     // Logging dependencies
