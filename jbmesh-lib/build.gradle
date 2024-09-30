@@ -1,25 +1,34 @@
-// jbmesh-lib
-
 plugins {
     id 'java-library'
 }
 
-tasks.withType(JavaCompile) { // compile-time options:
+tasks.withType(JavaCompile) {
     options.compilerArgs << '-Xdiags:verbose'
     options.compilerArgs << '-Xlint:unchecked'
     options.deprecation = true
     options.encoding = 'UTF-8'
 }
 
-
 dependencies {
     api 'org.jmonkeyengine:jme3-core:' + jmonkeyengineVersion
+
+    implementation "org.slf4j:slf4j-api:${slf4jVersion}"
+    implementation "ch.qos.logback:logback-classic:${logbackVersion}"
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:' + junitVersion
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:' + junitVersion
 }
 
-
 test {
     useJUnitPlatform()
 }
+
+// Create resources directory
+task createResourcesDir {
+    doLast {
+        mkdir "src/main/resources"
+    }
+}
+
+// Make sure resources directory is created before compiling
+compileJava.dependsOn createResourcesDir

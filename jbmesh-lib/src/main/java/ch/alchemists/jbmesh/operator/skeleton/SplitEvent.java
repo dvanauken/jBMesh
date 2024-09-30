@@ -7,8 +7,11 @@
 package ch.alchemists.jbmesh.operator.skeleton;
 
 import com.jme3.math.Vector2f;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 class SplitEvent extends SkeletonEvent {
+    private static final Logger logger = LoggerFactory.getLogger(SplitEvent.class);
     private final MovingNode reflexNode;
     private final MovingNode op0; // Opposite edge start
     private final MovingNode op1; // Opposite edge end
@@ -24,10 +27,15 @@ class SplitEvent extends SkeletonEvent {
         assert reflexNode != op1;
         assert op0 != op1;
         assert op0.next == op1;
+
+        logger.debug("Created SplitEvent for reflex node {} and opposite edge {}-{} at time {}",
+                reflexNode.id, op0.id, op1.id, time);
     }
 
 
     public static float calcTime(MovingNode reflexNode, MovingNode edgeStart, float distanceSign) {
+        logger.trace("Calculating split time for reflex node {} and edge start {}", reflexNode.id, edgeStart.id);
+
         // Calc component of bisector orthogonal to edge (perpendicular dot product)
         float bisectorSpeed = reflexNode.bisector.determinant(edgeStart.edgeDir);
         float edgeSpeed = -distanceSign;
@@ -38,15 +46,20 @@ class SplitEvent extends SkeletonEvent {
         // (Component of 'reflexRelative' orthogonal to edgeDir)
         Vector2f reflexRelative = reflexNode.skelNode.p.subtract(edgeStart.skelNode.p);
         float sideDistance = reflexRelative.determinant(edgeStart.edgeDir);
-        if(sideDistance == 0)
+        if(sideDistance == 0) {
+            logger.trace("Reflex node is on the edge. Checking if it can hit at time 0");
             return canHit(reflexNode, edgeStart, distanceSign, 0);
+        }
 
         // Negative speed means distance between reflex vertex and opposite edge increases with time
-        if(correctSpeed(approachSpeed, sideDistance) <= 0)
+        if(correctSpeed(approachSpeed, sideDistance) <= 0) {
+            logger.trace("Approach speed is not positive. Split event won't occur");
             return INVALID_TIME;
+        }
 
         // One of these values will be negative. The resulting time is always positive.
         float time = -sideDistance / approachSpeed;
+        logger.debug("Calculated split time: {}. Checking if hit is possible", time);
         return canHit(reflexNode, edgeStart, distanceSign, time);
     }
 
@@ -63,8 +76,10 @@ class SplitEvent extends SkeletonEvent {
      */
     private static float canHit(MovingNode reflexNode, MovingNode edgeStart, float distanceSign, float time) {
         // Check if edge collapses before split occurs. If edge grows (invalid edgeCollapseTime = NaN), this will evaluate to false.
-        if(time >= edgeStart.getEdgeCollapseTime())
+        if(time >= edgeStart.getEdgeCollapseTime()) {
+            logger.trace("Edge collapses before split occurs. Split event is invalid");
             return INVALID_TIME;
+        }
 
         // This check is not reliable because there could be another event that prevents the collapse of neighboring edges.
             /*
@@ -79,14 +94,18 @@ class SplitEvent extends SkeletonEvent {
 
         Vector2f reflexRelative = reflexFuture.subtract(edgeStart.skelNode.p);
         float side0 = edgeStart.bisector.determinant(reflexRelative);
-        if(side0 * distanceSign < 0)
+        if(side0 * distanceSign < 0) {
+            logger.trace("Reflex node will be on wrong side of edge start bisector. Split event is invalid");
             return INVALID_TIME;
+        }
 
         MovingNode edgeEnd = edgeStart.next;
         reflexRelative.set(reflexFuture).subtractLocal(edgeEnd.skelNode.p);
         float side1 = edgeEnd.bisector.determinant(reflexRelative);
-        if(side1 * distanceSign > 0)
+        if(side1 * distanceSign > 0) {
+            logger.trace("Reflex node will be on wrong side of edge end bisector. Split event is invalid");
             return INVALID_TIME;
+        }
 
         return time;
     }
@@ -94,6 +113,9 @@ class SplitEvent extends SkeletonEvent {
 
     @Override
     public void onEventQueued() {
+        logger.debug("SplitEvent queued for reflex node {} and opposite edge {}-{}",
+                reflexNode.id, op0.id, op1.id);
+
         reflexNode.addEvent(this);
         op0.addEvent(this);
         op1.addEvent(this);
@@ -101,6 +123,7 @@ class SplitEvent extends SkeletonEvent {
 
     @Override
     public void onEventAborted(MovingNode adjacentNode, SkeletonContext ctx) {
+        logger.debug("SplitEvent aborted for adjacent node {}", adjacentNode.id);
         ctx.addAbortedReflex(reflexNode);
 
         if(adjacentNode == reflexNode) {
@@ -120,6 +143,7 @@ class SplitEvent extends SkeletonEvent {
 
     @Override
     public void onEventAborted(MovingNode edgeNode0, MovingNode edgeNode1, SkeletonContext ctx) {
+        logger.debug("SplitEvent aborted for edge {}-{}", edgeNode0.id, edgeNode1.id);
         ctx.addAbortedReflex(reflexNode);
         reflexNode.removeEvent(this);
     }
@@ -127,6 +151,8 @@ class SplitEvent extends SkeletonEvent {
 
     @Override
     public void handle(SkeletonContext ctx) {
+        logger.info("Handling SplitEvent for reflex node {} and opposite edge {}-{}",
+                reflexNode.id, op0.id, op1.id);
         assert op0.next == op1;
         ctx.abortEvents(op0, op1);
 
@@ -154,6 +180,7 @@ class SplitEvent extends SkeletonEvent {
         node1.prev = reflexPrev;
         reflexPrev.next = node1;
 
+        logger.debug("Split completed. Handling resulting nodes");
         handle(node0, ctx); // Aborts events of reflexNode
         handle(node1, ctx);
     }

@@ -13,8 +13,12 @@ import ch.alchemists.jbmesh.util.PlanarCoordinateSystem;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import java.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SkeletonVisualization {
+    private static final Logger logger = LoggerFactory.getLogger(SkeletonVisualization.class);
+
     public static class VisNode {
         public final Vector3f pos = new Vector3f();
         public final String name;
@@ -34,14 +38,17 @@ public class SkeletonVisualization {
         this.coordSys = coordSys;
         this.initialNodes = initialNodes;
         this.ctx = ctx;
+        logger.debug("SkeletonVisualization initialized with {} initial nodes", initialNodes.size());
     }
 
 
     public BMesh createSkeletonMappingVis() {
+        logger.info("Creating skeleton mapping visualization");
         return createStraightSkeletonVis(SkeletonNode.EdgeType.Mapping);
     }
 
     public BMesh createSkeletonDegeneracyVis() {
+        logger.info("Creating skeleton degeneracy visualization");
         return createStraightSkeletonVis(SkeletonNode.EdgeType.Degeneracy);
     }
 
@@ -55,6 +62,7 @@ public class SkeletonVisualization {
         }
 
         //System.out.println("Straight Skeleton Visualization: " + nodesDone.size() + " unique nodes");
+        logger.debug("Straight Skeleton Visualization created with {} unique nodes", nodesDone.size());
         return bmesh;
     }
 
@@ -73,6 +81,7 @@ public class SkeletonVisualization {
     private void straightSkeletonVis_addEdge(BMesh bmesh, ExactHashDeduplication dedup, Set<SkeletonNode> nodesDone, SkeletonNode src, SkeletonNode.EdgeType edgeType) {
         if(!nodesDone.add(src)) {
             //System.out.println("straightSkeletonVis: node duplicate at " + coordSys.unproject(src.p));
+            logger.trace("Node duplicate detected at {}", coordSys.unproject(src.p));
             return;
         }
 
@@ -81,8 +90,10 @@ public class SkeletonVisualization {
             SkeletonNode target = entry.getKey();
             if(entry.getValue() == edgeType) {
                 Vertex v1 = getVertex(dedup, target.p);
-                if(v0 != v1 && v0.getEdgeTo(v1) == null)
+                if(v0 != v1 && v0.getEdgeTo(v1) == null) {
                     bmesh.createEdge(v0, v1);
+                    logger.trace("Edge created between {} and {}", v0, v1);
+                }
             }
 
             straightSkeletonVis_addEdge(bmesh, dedup, nodesDone, target, edgeType);
@@ -91,6 +102,7 @@ public class SkeletonVisualization {
 
 
     public BMesh createMovingNodesVis() {
+        logger.info("Creating moving nodes visualization");
         BMesh bmesh = new BMesh();
         Set<MovingNode> nodesRemaining = new HashSet<>(ctx.getNodes());
 
@@ -98,7 +110,7 @@ public class SkeletonVisualization {
             Optional<MovingNode> any = nodesRemaining.stream().findAny();
             createMovingNodesVis(bmesh, any.get(), nodesRemaining);
         }
-
+        logger.debug("Moving nodes visualization created");
         return bmesh;
     }
 
@@ -118,21 +130,25 @@ public class SkeletonVisualization {
             int nextIndex = (i+1) % vertices.size();
             bmesh.createEdge(vertices.get(i), vertices.get(nextIndex));
         }
+        logger.trace("Created polygon with {} vertices", vertices.size());
     }
 
 
     public List<VisNode> getMovingNodes() {
+        logger.info("Getting moving nodes for visualization");
         List<VisNode> nodes = new ArrayList<>();
         for(MovingNode movingNode : ctx.getNodes()) {
             VisNode node = new VisNode(movingNode.id);
             coordSys.unproject(movingNode.skelNode.p, node.pos);
             nodes.add(node);
         }
+        logger.debug("Retrieved {} moving nodes", nodes.size());
         return nodes;
     }
 
 
     public BMesh createBisectorVis() {
+        logger.info("Creating bisector visualization");
         BMesh bmesh = new BMesh();
 
         for(MovingNode movingNode : ctx.getNodes()) {
@@ -144,12 +160,13 @@ public class SkeletonVisualization {
 
             bmesh.createEdge(v0, v1);
         }
-
+        logger.debug("Bisector visualization created with {} bisectors", ctx.getNodes().size());
         return bmesh;
     }
 
 
     public BMesh createMappingVis() {
+        logger.info("Creating mapping visualization");
         BMesh bmesh = new BMesh();
 
         List<SkeletonNode> targets = new ArrayList<>();
@@ -163,8 +180,10 @@ public class SkeletonVisualization {
                 Vertex v1 = bmesh.createVertex( coordSys.unproject(target.p) );
                 bmesh.createEdge(v0, v1);
             }
+            logger.trace("Created mapping for initial node with {} targets", targets.size());
         }
 
+        logger.debug("Mapping visualization created for {} initial nodes", initialNodes.size());
         return bmesh;
     }
 }

@@ -2,19 +2,19 @@ plugins {
     id 'distribution'
 }
 
-
 allprojects {
     group = 'ch.alchemists'
     version = '0.1'
 
     ext.jmonkeyengineVersion = '3.5.0-stable'
     ext.junitVersion = '5.7.1'
-   
+    ext.slf4jVersion = '1.7.32'
+    ext.logbackVersion = '1.2.6'
+
     repositories {
         jcenter()
         mavenCentral()
     }
 }
-
 
 description = 'jBMesh - Java Mesh Processing Library'

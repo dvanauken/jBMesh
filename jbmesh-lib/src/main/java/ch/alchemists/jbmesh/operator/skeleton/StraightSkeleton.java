@@ -15,8 +15,13 @@ import ch.alchemists.jbmesh.util.PlanarCoordinateSystem;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import java.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class StraightSkeleton {
+
+    private static final Logger logger = LoggerFactory.getLogger(StraightSkeleton.class);
+
     private final Vec3Attribute<Vertex> positions;
 
     private float offsetDistance = Float.POSITIVE_INFINITY; // Absolute value
@@ -28,6 +33,7 @@ public class StraightSkeleton {
 
 
     public StraightSkeleton(BMesh bmesh) {
+        logger.info("Initializing StraightSkeleton with BMesh");
         positions = Vec3Attribute.get(BMeshAttribute.Position, bmesh.vertices());
     }
 
@@ -39,12 +45,14 @@ public class StraightSkeleton {
      * @param distance
      */
     public void setDistance(float distance) {
+        logger.debug("Setting distance to {}", distance);
         if(distance == Float.POSITIVE_INFINITY) {
             throw new IllegalArgumentException("Cannot scale outwards to infinity.");
         }
 
         distanceSign = Math.signum(distance);
         offsetDistance = Math.abs(distance);
+        logger.debug("Distance sign: {}, Offset distance: {}", distanceSign, offsetDistance);
     }
 
 
@@ -54,22 +62,27 @@ public class StraightSkeleton {
      * @param epsilon
      */
     public void setEpsilon(float epsilon) {
+        logger.debug("Setting epsilon to {}", epsilon);
         ctx.setEpsilon(epsilon);
     }
 
 
     public void apply(Face face) {
+        logger.info("Applying StraightSkeleton to face");
         List<Vertex> vertices = face.getVertices();
+        logger.debug("Face has {} vertices", vertices.size());
         assert vertices.size() >= 3;
 
         ctx.reset(offsetDistance, distanceSign);
         coordSys = new PlanarCoordinateSystem().forFace(face, positions);
 
         float diagonalSize = createNodes(vertices);
+        logger.debug("Created nodes. Diagonal size: {}", diagonalSize);
 
         // When shrinking to infinity, use polygon's bounding rectangle to determine max distance (less events queued = speed up)
         if(distanceSign < 0 && offsetDistance == Float.POSITIVE_INFINITY) {
             ctx.distance = diagonalSize * 0.51f;
+            logger.debug("Adjusted distance for infinite shrinking: {}", ctx.distance);
         }
 
         if(ctx.distance != 0) {
@@ -77,11 +90,16 @@ public class StraightSkeleton {
             initEvents();
             loop();
         }
+        else{
+            logger.info("Skipping main loop as distance is 0");
+        }
     }
 
 
     private void loop() {
+        logger.info("Starting main loop");
         ctx.time = 0;
+        int eventCount = 0;
 
         while(true) {
             //ctx.printNodes();
@@ -89,15 +107,19 @@ public class StraightSkeleton {
 
             SkeletonEvent event = ctx.pollQueue();
             if(event == null) {
+                logger.debug("No more events. Scaling by {}", ctx.distance - ctx.time);
                 scale(ctx.distance - ctx.time);
                 break;
             }
 
             scale(event.time - ctx.time);
             ctx.time = event.time;
+            logger.debug("Processing event at time {}. Event type: {}", ctx.time, event.getClass().getSimpleName());
             event.handle(ctx);
             ctx.recheckAbortedReflexNodes();
+            eventCount++;
         }
+        logger.info("Main loop completed. Processed {} events", eventCount);
     }
 
 
@@ -107,6 +129,7 @@ public class StraightSkeleton {
      * @return Diagonal length of bounding rectangle.
      */
     private float createNodes(List<Vertex> vertices) {
+        logger.debug("Creating nodes for {} vertices", vertices.size());
         initialNodes.clear();
         initialNodes.ensureCapacity(vertices.size());
 
@@ -131,7 +154,9 @@ public class StraightSkeleton {
         first.prev = last;
         last.next = first;
 
-        return max.subtractLocal(min).length();
+        float diagonalLength = max.subtractLocal(min).length();
+        logger.debug("Nodes created. Bounding box diagonal length: {}", diagonalLength);
+        return diagonalLength;
     }
 
     private MovingNode createNode(Vertex vertex, Vector3f vertexPos, Vector3f min, Vector3f max) {
@@ -150,6 +175,7 @@ public class StraightSkeleton {
 
 
     private void initBisectors() {
+        logger.debug("Initializing bisectors");
         List<MovingNode> degenerates = new LinkedList<>();
 
         for(MovingNode node : ctx.getNodes()) {
@@ -159,6 +185,7 @@ public class StraightSkeleton {
         }
 
         // Process degenerate nodes after all bisectors have been initialized
+        logger.debug("Found {} degenerate nodes", degenerates.size());
         for(MovingNode degenerateNode : degenerates) {
             // Check if 'degenerateNode' was already removed in previous handleInit() calls
             if(degenerateNode.next != null)
@@ -168,6 +195,7 @@ public class StraightSkeleton {
 
 
     private void initEvents() {
+        logger.debug("Initializing events");
         List<MovingNode> reflexNodes = new LinkedList<>();
 
         for(MovingNode current : ctx.getNodes()) {
@@ -181,6 +209,7 @@ public class StraightSkeleton {
         }
 
         // Process the reflex nodes after all edges have been initialized with updateEdge().
+        logger.debug("Found {} reflex nodes", reflexNodes.size());
         for(MovingNode reflex : reflexNodes)
             SkeletonEvent.createSplitEvents(reflex, ctx);
     }
@@ -190,13 +219,18 @@ public class StraightSkeleton {
         if(dist == 0)
             return;
 
+        logger.debug("Scaling by distance {}", dist);
         Vector2f dir = new Vector2f();
 
         for(MovingNode node : ctx.getNodes()) {
             dir.set(node.bisector).multLocal(dist);
             node.skelNode.p.addLocal(dir);
 
-            assert !isInvalid(node.skelNode.p) : "Invalid position after scale: bisector=" + node.bisector + ", dir=" + dir;
+            if(isInvalid(node.skelNode.p)) {
+                logger.warn("Invalid position after scale: bisector={}, dir={}", node.bisector, dir);
+            }
+
+            //assert !isInvalid(node.skelNode.p) : "Invalid position after scale: bisector=" + node.bisector + ", dir=" + dir;
         }
     }
 

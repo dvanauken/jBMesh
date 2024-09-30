@@ -1,0 +1,52 @@
+2024-09-29 12:32:17.290 [main] INFO  c.a.j.o.skeleton.SkeletonContext - Initializing SkeletonContext
+2024-09-29 12:32:17.292 [main] INFO  c.a.j.o.skeleton.StraightSkeleton - Initializing StraightSkeleton with BMesh
+2024-09-29 12:32:17.292 [main] DEBUG c.a.j.o.skeleton.StraightSkeleton - Setting distance to 3.0
+2024-09-29 12:32:17.295 [main] DEBUG c.a.j.o.skeleton.StraightSkeleton - Distance sign: 1.0, Offset distance: 3.0
+2024-09-29 12:32:17.295 [main] INFO  c.a.j.o.skeleton.StraightSkeleton - Applying StraightSkeleton to face
+2024-09-29 12:32:17.296 [main] DEBUG c.a.j.o.skeleton.StraightSkeleton - Face has 6 vertices
+2024-09-29 12:32:17.296 [main] INFO  c.a.j.o.skeleton.SkeletonContext - Resetting SkeletonContext with distance: 3.0, distanceSign: 1.0
+2024-09-29 12:32:17.299 [main] DEBUG c.a.j.o.skeleton.StraightSkeleton - Creating nodes for 6 vertices
+2024-09-29 12:32:17.301 [main] DEBUG c.a.j.o.skeleton.SkeletonContext - Created MovingNode with custom ID: 1
+2024-09-29 12:32:17.301 [main] DEBUG c.a.j.o.skeleton.SkeletonContext - Created MovingNode with ID: 1
+2024-09-29 12:32:17.301 [main] DEBUG c.a.j.o.skeleton.SkeletonContext - Created MovingNode with custom ID: 2
+2024-09-29 12:32:17.301 [main] DEBUG c.a.j.o.skeleton.SkeletonContext - Created MovingNode with ID: 2
+2024-09-29 12:32:17.301 [main] DEBUG c.a.j.o.skeleton.SkeletonContext - Created MovingNode with custom ID: 3
+2024-09-29 12:32:17.301 [main] DEBUG c.a.j.o.skeleton.SkeletonContext - Created MovingNode with ID: 3
+2024-09-29 12:32:17.301 [main] DEBUG c.a.j.o.skeleton.SkeletonContext - Created MovingNode with custom ID: 4
+2024-09-29 12:32:17.301 [main] DEBUG c.a.j.o.skeleton.SkeletonContext - Created MovingNode with ID: 4
+2024-09-29 12:32:17.301 [main] DEBUG c.a.j.o.skeleton.SkeletonContext - Created MovingNode with custom ID: 5
+2024-09-29 12:32:17.301 [main] DEBUG c.a.j.o.skeleton.SkeletonContext - Created MovingNode with ID: 5
+2024-09-29 12:32:17.301 [main] DEBUG c.a.j.o.skeleton.SkeletonContext - Created MovingNode with custom ID: 6
+2024-09-29 12:32:17.301 [main] DEBUG c.a.j.o.skeleton.SkeletonContext - Created MovingNode with ID: 6
+2024-09-29 12:32:17.301 [main] DEBUG c.a.j.o.skeleton.StraightSkeleton - Nodes created. Bounding box diagonal length: 14.142136
+2024-09-29 12:32:17.301 [main] DEBUG c.a.j.o.skeleton.StraightSkeleton - Created nodes. Diagonal size: 14.142136
+2024-09-29 12:32:17.301 [main] DEBUG c.a.j.o.skeleton.StraightSkeleton - Initializing bisectors
+2024-09-29 12:32:17.302 [main] DEBUG c.a.j.o.skeleton.StraightSkeleton - Found 0 degenerate nodes
+2024-09-29 12:32:17.302 [main] DEBUG c.a.j.o.skeleton.StraightSkeleton - Initializing events
+2024-09-29 12:32:17.302 [main] DEBUG c.a.j.o.skeleton.SkeletonContext - Attempting to queue EdgeEvent for nodes 1 and 2 at time NaN
+2024-09-29 12:32:17.302 [main] DEBUG c.a.j.o.skeleton.SkeletonContext - Attempting to queue EdgeEvent for nodes 2 and 3 at time NaN
+2024-09-29 12:32:17.302 [main] DEBUG c.a.j.o.skeleton.SkeletonContext - Attempting to queue EdgeEvent for nodes 3 and 4 at time NaN
+2024-09-29 12:32:17.302 [main] DEBUG c.a.j.o.skeleton.SkeletonContext - Attempting to queue EdgeEvent for nodes 4 and 5 at time NaN
+2024-09-29 12:32:17.302 [main] DEBUG c.a.j.o.skeleton.SkeletonContext - Attempting to queue EdgeEvent for nodes 5 and 6 at time NaN
+2024-09-29 12:32:17.302 [main] DEBUG c.a.j.o.skeleton.SkeletonContext - Attempting to queue EdgeEvent for nodes 6 and 1 at time NaN
+2024-09-29 12:32:17.302 [main] DEBUG c.a.j.o.skeleton.StraightSkeleton - Found 5 reflex nodes
+2024-09-29 12:32:17.302 [main] DEBUG c.a.j.o.skeleton.SkeletonEvent - Creating split events for reflex node 1
+2024-09-29 12:32:17.303 [main] DEBUG c.a.j.o.skeleton.SkeletonContext - Attempting to replace nearest SplitEvent for reflex node 1 at time NaN
+2024-09-29 12:32:17.303 [main] DEBUG c.a.j.o.skeleton.SkeletonContext - Attempting to replace nearest SplitEvent for reflex node 1 at time NaN
+2024-09-29 12:32:17.303 [main] DEBUG c.a.j.o.skeleton.SkeletonEvent - Creating split events for reflex node 2
+2024-09-29 12:32:17.303 [main] DEBUG c.a.j.operator.skeleton.SplitEvent - Calculated split time: 2.516582E7. Checking if hit is possible
+2024-09-29 12:32:17.303 [main] DEBUG c.a.j.o.skeleton.SkeletonContext - Attempting to replace nearest SplitEvent for reflex node 2 at time NaN
+2024-09-29 12:32:17.303 [main] DEBUG c.a.j.o.skeleton.SkeletonContext - Attempting to replace nearest SplitEvent for reflex node 2 at time NaN
+2024-09-29 12:32:17.303 [main] DEBUG c.a.j.o.skeleton.SkeletonEvent - Creating split events for reflex node 3
+2024-09-29 12:32:17.303 [main] DEBUG c.a.j.o.skeleton.SkeletonContext - Attempting to replace nearest SplitEvent for reflex node 3 at time NaN
+2024-09-29 12:32:17.303 [main] DEBUG c.a.j.o.skeleton.SkeletonContext - Attempting to replace nearest SplitEvent for reflex node 3 at time NaN
+2024-09-29 12:32:17.303 [main] DEBUG c.a.j.o.skeleton.SkeletonEvent - Creating split events for reflex node 5
+2024-09-29 12:32:17.303 [main] DEBUG c.a.j.o.skeleton.SkeletonContext - Attempting to replace nearest SplitEvent for reflex node 5 at time NaN
+2024-09-29 12:32:17.303 [main] DEBUG c.a.j.o.skeleton.SkeletonContext - Attempting to replace nearest SplitEvent for reflex node 5 at time NaN
+2024-09-29 12:32:17.303 [main] DEBUG c.a.j.o.skeleton.SkeletonEvent - Creating split events for reflex node 6
+2024-09-29 12:32:17.303 [main] DEBUG c.a.j.o.skeleton.SkeletonContext - Attempting to replace nearest SplitEvent for reflex node 6 at time NaN
+2024-09-29 12:32:17.303 [main] DEBUG c.a.j.o.skeleton.SkeletonContext - Attempting to replace nearest SplitEvent for reflex node 6 at time NaN
+2024-09-29 12:32:17.303 [main] INFO  c.a.j.o.skeleton.StraightSkeleton - Starting main loop
+2024-09-29 12:32:17.303 [main] DEBUG c.a.j.o.skeleton.StraightSkeleton - No more events. Scaling by 3.0
+2024-09-29 12:32:17.303 [main] DEBUG c.a.j.o.skeleton.StraightSkeleton - Scaling by distance 3.0
+2024-09-29 12:32:17.303 [main] INFO  c.a.j.o.skeleton.StraightSkeleton - Main loop completed. Processed 0 events

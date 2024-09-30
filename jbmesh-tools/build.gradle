@@ -6,44 +6,26 @@ plugins {
     id 'distribution'
 }
 
-
-tasks.withType(JavaCompile) { // compile-time options:
+tasks.withType(JavaCompile) {
     options.compilerArgs << '-Xdiags:verbose'
     options.compilerArgs << '-Xlint:unchecked'
     options.deprecation = true
     options.encoding = 'UTF-8'
 }
 
-tasks.withType(JavaExec) { // runtime options:
+tasks.withType(JavaExec) {
     args = []
     classpath sourceSets.main.runtimeClasspath
-    //debug true
     enableAssertions true
-    //jvmArgs '-verbose:gc'
-    //jvmArgs '-Xbatch'
     jvmArgs '-Xms512m', '-Xmx4096m'
     jvmArgs '-XX:+UseG1GC', '-XX:MaxGCPauseMillis=10'
-
-    // LWJGL Debug
-    //jvmArgs '-Dorg.lwjgl.util.DebugLoader=true', '-Dorg.lwjgl.util.Debug=true'
-    
-    // JITWatch
-    /*jvmArgs '-XX:+UnlockDiagnosticVMOptions', '-XX:+TraceClassLoading', '-XX:+LogCompilation'
-    jvmArgs '-Xlog:class+load=info'
-    jvmArgs '-XX:+PrintNMethods'
-    //jvmArgs '-XX:+DebugNonSafepoints'
-    jvmArgs '-XX:+PrintAssembly'
-    //jvmArgs '-XX:LogFile=jbmesh-hotspot.log'
-    jvmArgs '-XX:LogFile=jbmesh-graalvm.log'*/
 }
-
 
 mainClassName = 'ch.alchemists.jbmesh.tools.Main'
 if (!hasProperty('mainClass')) {
     ext.mainClass = mainClassName
 }
 jar.manifest.attributes('Main-Class': mainClassName)
-
 
 dependencies {
     implementation project(":jbmesh-lib")
@@ -54,14 +36,22 @@ dependencies {
 
     runtimeOnly 'org.jmonkeyengine:jme3-lwjgl3:'     + jmonkeyengineVersion
 
-
     // Lemur GUI library
-    // https://mvnrepository.com/artifact/com.simsilica/lemur
     implementation group: 'com.simsilica', name: 'lemur', version: '1.14.0'
+    implementation group: 'com.simsilica', name: 'lemur-proto', version: '1.13.0'
 
-    // https://mvnrepository.com/artifact/com.simsilica/lemur-proto
-    implementation group: 'com.simsilica', name: 'lemur-proto', version: '1.11.0'
-
-    // https://mvnrepository.com/artifact/org.codehaus.groovy/groovy-all
     implementation group: 'org.codehaus.groovy', name: 'groovy-all', version: '2.4.15'
+
+    // Logging dependencies
+    implementation 'org.slf4j:slf4j-api:1.7.32'
+    implementation 'ch.qos.logback:logback-classic:1.2.6'
 }
+
+// Copy logback.xml to the build output
+task copyLogbackConfig(type: Copy) {
+    from "${projectDir}/src/main/resources/logback.xml"
+    into "${buildDir}/resources/main"
+}
+
+// Ensure the logback.xml is copied before the JAR is created
+processResources.dependsOn copyLogbackConfig
