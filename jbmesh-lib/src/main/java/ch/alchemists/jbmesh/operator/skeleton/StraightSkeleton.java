@@ -68,7 +68,8 @@ public class StraightSkeleton {
 
 
     public void apply(Face face) {
-        logger.info("Applying StraightSkeleton to face");
+        logger.info("Applying straight skeleton to face with {} vertices", face.getVertices().size());
+        //logger.info("Applying StraightSkeleton to face");
         List<Vertex> vertices = face.getVertices();
         logger.debug("Face has {} vertices", vertices.size());
         assert vertices.size() >= 3;

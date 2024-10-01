@@ -22,7 +22,7 @@ public class SkeletonNode {
     }
 
     final Vector2f p = new Vector2f();
-    final Map<SkeletonNode, EdgeType> outgoingEdges = new HashMap<>(2);
+    public final Map<SkeletonNode, EdgeType> outgoingEdges = new HashMap<>(2);
     final Map<SkeletonNode, EdgeType> incomingEdges = new HashMap<>(2);
 
     private boolean reflex = false;
